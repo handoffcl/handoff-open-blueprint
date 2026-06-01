@@ -1,0 +1,80 @@
+# Constitution — {{PROJECT_NAME}}
+
+Version: 1.0 | Created: {{DATE}}
+
+> Immutable principles. Change these only with explicit team discussion.
+> The **## Project Status** section at the bottom is auto-updated after every commit.
+> Everything else requires a deliberate decision to change.
+
+---
+
+## Why this project exists
+
+{{REASON_FOR_EXISTENCE}}
+
+---
+
+## Principles
+
+### 1. {{PRINCIPLE_NAME}}
+{{DESCRIPTION}}
+
+**Why:** {{REASON}}
+
+### 2. Fail explicitly
+When detecting an error or invalid input:
+- Say exactly *what* was detected
+- Return a structured, actionable error
+- Never approve doubtful cases "just in case"
+
+**Why:** A false negative (approving bad input) is far more damaging than a false positive.
+
+### 3. Spec-driven
+Every feature has a spec in `docs/specs/` written *before* the code.
+The spec is the contract — the code implements it, not the other way around.
+
+**Why:** When the AI has a spec, it writes code that implements exactly that.
+Without it, it writes what seems reasonable, which may not match what you meant.
+
+### 4. Quality gate is non-negotiable
+`make quality` must pass before every commit. No exceptions, no workarounds.
+
+**Why:** AI agents write code fast — sometimes too fast. The quality gate catches
+type errors, regressions, and style drift before they reach production.
+
+### 5. Docs evolve with the product
+Constitution, clarify, specs, and ADRs are living documents.
+They reflect what the project *became*, not just what it was designed to be.
+Update them when the product changes direction.
+
+**Why:** A doc that doesn't reflect reality is worse than no doc.
+It misleads the AI into defending decisions that were already reversed.
+
+---
+
+## What this project is NOT
+
+- ❌ {{NOT_THIS}}
+- ❌ {{NOT_THIS}}
+
+---
+
+## Active products
+
+| Product | Description |
+|---|---|
+| {{PRODUCT}} | {{DESCRIPTION}} |
+
+---
+
+## Required environment variables
+
+| Variable | Description |
+|---|---|
+| `{{ENV_VAR}}` | {{DESCRIPTION}} |
+
+---
+
+## Project Status
+
+_Auto-updated by scripts/update_docs.py_

@@ -1,0 +1,77 @@
+# Product Vision — {{PROJECT_NAME}}
+
+_What the product is, who it's for, and why it exists._
+
+---
+
+## The problem
+
+<!-- Describe the real problem you're solving. Be specific: who suffers it, when, how often. -->
+
+{{PROBLEM_DESCRIPTION}}
+
+---
+
+## The solution
+
+<!-- Describe your solution in 2-3 sentences. Avoid technical jargon. -->
+
+{{SOLUTION_DESCRIPTION}}
+
+---
+
+## Target users
+
+| Segment | Description | Main pain point |
+|---|---|---|
+| {{SEGMENT_1}} | {{DESC_1}} | {{PAIN_1}} |
+| {{SEGMENT_2}} | {{DESC_2}} | {{PAIN_2}} |
+
+---
+
+## Value proposition
+
+> **For** {{TARGET_USER}}, **who** {{PROBLEM}},
+> **{{PROJECT_NAME}}** is a {{CATEGORY}}
+> **that** {{KEY_BENEFIT}}.
+> **Unlike** {{ALTERNATIVE}},
+> **we** {{DIFFERENTIATOR}}.
+
+---
+
+## Tech stack (and why)
+
+| Layer | Technology | Reason |
+|---|---|---|
+| Backend | {{BACKEND}} | {{BACKEND_REASON}} |
+| Frontend | {{FRONTEND}} | {{FRONTEND_REASON}} |
+| Database | {{DATABASE}} | {{DATABASE_REASON}} |
+| Auth | {{AUTH}} | {{AUTH_REASON}} |
+| Payments | {{PAYMENTS}} | {{PAYMENTS_REASON}} |
+| Deploy | {{DEPLOY}} | {{DEPLOY_REASON}} |
+| AI | {{AI}} | {{AI_REASON}} |
+
+---
+
+## Success metrics (MVP)
+
+- [ ] {{METRIC_1}} (target: {{TARGET_1}})
+- [ ] {{METRIC_2}} (target: {{TARGET_2}})
+- [ ] {{METRIC_3}} (target: {{TARGET_3}})
+
+---
+
+## What this product is NOT
+
+- Not {{NOT_1}}
+- Not {{NOT_2}}
+- Does not replace {{NOT_3}}
+
+---
+
+## Conscious product decisions
+
+| Decision | Discarded alternative | Reason |
+|---|---|---|
+| {{DECISION_1}} | {{ALT_1}} | {{REASON_1}} |
+| {{DECISION_2}} | {{ALT_2}} | {{REASON_2}} |

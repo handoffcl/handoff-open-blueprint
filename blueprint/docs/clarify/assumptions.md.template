@@ -1,0 +1,67 @@
+# Assumptions & Clarifications — {{PROJECT_NAME}}
+
+> What we assume, what we decided not to decide yet, and what questions remain open.
+> Write this before coding. Update it when reality corrects an assumption.
+> The **## Last Review** section is auto-updated. Everything else is manual.
+
+---
+
+## User assumptions
+
+| Assumption | How we validate |
+|---|---|
+| {{USER_ASSUMPTION_1}} | {{VALIDATION_METHOD_1}} |
+| {{USER_ASSUMPTION_2}} | {{VALIDATION_METHOD_2}} |
+| Users have a stable internet connection | Known prerequisite — not validated |
+
+---
+
+## Technical assumptions
+
+| Assumption | Risk if wrong |
+|---|---|
+| AI provider maintains current pricing | Adjust pricing model |
+| Managed hosting is sufficient for initial volume | Migrate to dedicated infrastructure |
+| {{TECH_ASSUMPTION_1}} | {{RISK_1}} |
+
+---
+
+## Business assumptions
+
+| Assumption | Basis |
+|---|---|
+| {{BUSINESS_ASSUMPTION_1}} | {{BASIS_1}} |
+| {{BUSINESS_ASSUMPTION_2}} | {{BASIS_2}} |
+
+---
+
+## Open questions
+
+Questions with no answer yet — documented so they don't get forgotten:
+
+1. **{{OPEN_QUESTION_1}}**
+   - Options: {{OPTION_A}} | {{OPTION_B}}
+   - Decide when: {{TRIGGER}}
+
+2. **{{OPEN_QUESTION_2}}**
+   - Options: {{OPTION_A}} | {{OPTION_B}}
+   - Decide when: {{TRIGGER}}
+
+---
+
+## Consciously deferred
+
+Features we chose not to build yet — and why:
+
+| Item | Reason | Reconsider when |
+|---|---|---|
+| Native mobile app | High cost, web sufficient for MVP | If >40% of users are mobile |
+| Multi-tenant architecture | Unnecessary complexity for v1 | If enterprise clients require it |
+| Internationalization (i18n) | Single market for now | If international demand appears |
+| {{DEFERRED_1}} | {{REASON_1}} | {{RECONSIDER_WHEN_1}} |
+
+---
+
+## Last Review
+
+_Auto-updated by scripts/update_docs.py_

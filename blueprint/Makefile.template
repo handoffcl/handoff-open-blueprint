@@ -1,0 +1,43 @@
+# {{PROJECT_NAME}} — Makefile
+
+.PHONY: help install dev quality lint format typecheck test build clean
+
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+
+install:  ## Install Python + Node dependencies
+	pip install -r requirements.txt
+	pip install -r requirements-dev.txt
+	cd frontend && npm install
+
+dev:  ## Start development server with hot reload
+	.venv/bin/uvicorn main:app --reload --port 8000
+
+quality:  ## Run everything: lint + format + types + tests
+	.venv/bin/ruff check src/ tests/ main.py --fix
+	.venv/bin/ruff format src/ tests/ main.py
+	.venv/bin/mypy src/
+	.venv/bin/pytest tests/ -v
+
+lint:  ## Ruff check only
+	.venv/bin/ruff check src/ tests/ main.py
+
+format:  ## Ruff format only
+	.venv/bin/ruff format src/ tests/ main.py
+
+typecheck:  ## Mypy only
+	.venv/bin/mypy src/
+
+test:  ## Pytest only
+	.venv/bin/pytest tests/ -v
+
+test-fast:  ## Pytest quiet (faster for iteration)
+	.venv/bin/pytest tests/ -q
+
+build:  ## Build frontend for production
+	cd frontend && npm run build
+
+clean:  ## Remove generated files
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+	rm -f *.db

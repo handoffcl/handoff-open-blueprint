@@ -1,0 +1,91 @@
+# Technical Plan v1 — {{PROJECT_NAME}}
+
+> What we build in the MVP, in what order, and the architectural decisions made.
+> The **## Build Progress** section is auto-updated after every commit.
+> Everything else requires a deliberate decision to change.
+
+---
+
+## MVP Scope
+
+### Included
+- [ ] {{FEATURE_1}}
+- [ ] {{FEATURE_2}}
+- [ ] {{FEATURE_3}}
+- [ ] Auth (user identity)
+- [ ] Payments (basic credits or subscription)
+- [ ] Admin panel (minimal)
+
+### Consciously excluded
+- {{OUT_OF_SCOPE_1}} — reason: {{REASON_1}}
+- {{OUT_OF_SCOPE_2}} — reason: {{REASON_2}}
+- Load testing / performance benchmarks — for v2
+
+---
+
+## Build order
+
+```
+Week 1: Skeleton
+├── Backend + Frontend connected
+├── Auth end-to-end
+└── Deploy pipeline
+
+Week 2: Core product
+├── {{CORE_MODULE_1}}
+└── {{CORE_MODULE_2}}
+
+Week 3: Monetization
+├── Payments with {{PAYMENT_PROVIDER}}
+├── Credits / subscription system
+└── Admin panel (basic)
+
+Week 4: Quality
+├── Critical unit tests
+├── Observability (structured logs)
+└── Public API documentation
+```
+
+---
+
+## Architecture Decision Records
+
+### ADR-001: {{DECISION_TITLE}}
+**Context:** {{CONTEXT}}
+**Decision:** {{DECISION}}
+**Consequences:** {{CONSEQUENCES}}
+
+### ADR-002: Modular monolith over microservices
+**Context:** Small team, fast MVP needed.
+**Decision:** Single process with independent modules.
+**Consequences:** +Simple deploy, +no network overhead; −less horizontal scalability per module.
+
+### ADR-003: {{DECISION_TITLE}}
+**Context:** {{CONTEXT}}
+**Decision:** {{DECISION}}
+**Consequences:** {{CONSEQUENCES}}
+
+---
+
+## Risks and mitigations
+
+| Risk | Probability | Impact | Mitigation |
+|---|---|---|---|
+| External API cost exceeds budget | Medium | High | Add cheap precheck before expensive calls |
+| Auth provider changes policy | Low | High | Abstract auth behind `src/auth/` |
+| {{RISK_1}} | {{PROB_1}} | {{IMPACT_1}} | {{MITIGATION_1}} |
+
+---
+
+## External dependencies
+
+| Service | Purpose | Free tier | Limit |
+|---|---|---|---|
+| {{SERVICE_1}} | {{PURPOSE_1}} | {{FREE_1}} | {{LIMIT_1}} |
+| {{SERVICE_2}} | {{PURPOSE_2}} | {{FREE_2}} | {{LIMIT_2}} |
+
+---
+
+## Build Progress
+
+_Auto-updated by scripts/update_docs.py_

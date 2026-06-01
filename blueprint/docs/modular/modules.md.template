@@ -1,0 +1,86 @@
+# Modular Design — {{PROJECT_NAME}}
+
+## Principle
+
+Each module has a single responsibility and owns its domain.
+Modules communicate through well-defined contracts (typed models or interfaces),
+not by reaching into each other's internals.
+
+**Rule:** No module imports directly from another business module.
+All cross-module communication goes through models or the routes/controller layer.
+
+---
+
+## Module map
+
+```
+{{PROJECT_NAME}}/
+├── core/
+│   ├── auth          — identity, sessions, API keys
+│   ├── models        — shared data models / DB schema
+│   └── payments      — unified payment webhook handler
+│
+├── {{product_1}}/
+│   ├── {{layer_1}}   — {{description}}
+│   ├── {{layer_2}}   — {{description}}
+│   └── routes        — HTTP endpoints
+│
+├── {{product_2}}/
+│   ├── evaluator     — core business logic
+│   ├── policies/     — one file per rule variant
+│   │   ├── base      — BasePolicy contract + result type
+│   │   ├── registry  — ACTIVE_POLICIES list
+│   │   └── <name>    — per-variant implementation
+│   ├── models        — input/output types
+│   └── routes        — HTTP endpoints
+│
+└── admin/
+    └── routes        — admin panel (metrics, users, revenue)
+```
+
+---
+
+## Contracts
+
+### {{module}} → result type
+```
+Input:  {{input_type}}
+Output: {{output_type}}
+Errors: {{error_type}}
+```
+
+### {{module}} → result type
+```
+Input:  {{input_type}}
+Output: {{output_type}}
+Errors: {{error_type}}
+```
+
+---
+
+## Dependency graph
+
+```
+admin     →  models (read-only)
+{{p1}}    →  auth, models
+{{p2}}    →  models
+payments  →  models (credits users)
+auth      →  models (users, keys)
+```
+
+---
+
+## Extension rules
+
+### Adding a new variant to {{module}} (policy pattern)
+1. Create `src/{{module}}/policies/{{name}}.py` implementing `BasePolicy`
+2. Implement the `evaluate(input, context) → Result` method
+3. Register in `policies/registry.py`
+4. Add tests covering the variant's edge cases
+5. Write a spec in `docs/specs/{{name}}.md` if behavior is complex
+
+### Adding a new module
+1. Create `src/{{new_module}}/` with its own models and routes
+2. Define the public contract in `docs/modular/modules.md`
+3. Never import from other business modules — go through models
+4. Add an ADR in `docs/plan/v1-mvp.md` explaining the new boundary

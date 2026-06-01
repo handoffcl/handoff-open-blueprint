@@ -1,0 +1,124 @@
+# SDD — System Design Document — {{PROJECT_NAME}}
+
+## Overview
+
+{{PROJECT_NAME}} is a {{ARCHITECTURE_TYPE}} (e.g. modular monolith / microservices / serverless):
+{{ARCHITECTURE_DESCRIPTION}}
+
+```
+┌─────────────────────────────────────────────────────┐
+│               Browser / API Client                   │
+└──────────────┬──────────────────────────────────────┘
+               │ HTTPS
+┌──────────────▼──────────────────────────────────────┐
+│              {{FRONTEND}} (client layer)              │
+│         Auth token → HTTP-only session cookie         │
+└──────────────┬──────────────────────────────────────┘
+               │
+┌──────────────▼──────────────────────────────────────┐
+│              {{BACKEND}} (main.{{ext}})               │
+│                                                      │
+│  ┌───────────────┐  ┌───────────────┐               │
+│  │  {{Product1}} │  │  {{Product2}} │  ...           │
+│  └───────┬───────┘  └───────┬───────┘               │
+│          │                  │                        │
+│  ┌───────▼──────────────────▼──────────────────┐    │
+│  │         Auth · Payments · Admin              │    │
+│  └─────────────────────┬────────────────────── ┘    │
+└────────────────────────┼───────────────────────────┘
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+      {{DATABASE}}   {{AI_API}}    {{PAYMENT}}
+```
+
+---
+
+## Components
+
+### 1. Frontend — {{FRONTEND_TECH}}
+**Location:** `{{frontend_path}}/`
+
+Responsibilities:
+- UI for all products
+- User authentication (obtains session token)
+- Client-side state management
+
+**Does NOT:** contain business logic, perform security validations, call AI APIs directly.
+
+---
+
+### 2. {{Core product}} — {{DESCRIPTION}}
+**Location:** `src/{{product}}/`
+
+```
+Input received
+    │
+    ▼ Step 1: {{validation_step}}     Cost: {{cost}}
+    │
+    ▼ Step 2: {{processing_step}}     Cost: {{cost}}
+    │
+    ▼ Step 3: {{output_step}}         Cost: {{cost}}
+```
+
+**Key principle:** {{PRINCIPLE}}
+
+---
+
+### 3. Auth — {{AUTH_PROVIDER}}
+**Location:** `src/auth/`
+
+| Layer | For whom | How |
+|---|---|---|
+| {{AUTH_METHOD_1}} | {{FOR_1}} | {{HOW_1}} |
+| {{AUTH_METHOD_2}} | {{FOR_2}} | {{HOW_2}} |
+
+---
+
+### 4. Payments
+**Location:** `src/{{payments_path}}/`
+
+- Provider: {{PAYMENT_PROVIDER}}
+- Webhook endpoint: `{{WEBHOOK_PATH}}`
+- **Idempotency required:** check if event was already processed before crediting.
+
+---
+
+## Database
+
+### Main tables
+```
+{{TABLE_1}}   — {{PURPOSE_1}}
+{{TABLE_2}}   — {{PURPOSE_2}}
+{{TABLE_3}}   — {{PURPOSE_3}}
+```
+
+### Convention
+- Dev: local DB (SQLite, JSON, etc.) at `./dev.{{ext}}`
+- Prod: managed DB (`{{DATABASE_URL_VAR}}` environment variable)
+
+---
+
+## Deployment
+
+```
+git push origin main
+    │
+    ▼ {{CI_PROVIDER}} detects push
+    │
+    ▼ Build step: {{BUILD_COMMAND}}
+    │
+    ▼ Start: {{START_COMMAND}}
+```
+
+---
+
+## Architecture Decision Records
+
+| ADR | Decision |
+|---|---|
+| ADR-001 | {{DECISION_1}} |
+| ADR-002 | {{DECISION_2}} |
+| ADR-003 | {{DECISION_3}} |
+
+_Full ADR details in `docs/plan/v1-mvp.md`_

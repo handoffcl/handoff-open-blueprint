@@ -1,0 +1,83 @@
+# CONTEXT.md — {{PROJECT_NAME}}
+
+> AI memory file. Auto-updated after every commit (git post-commit hook).
+> Start every AI session by reading this file first — and `HANDOFF.md` for the rules.
+> Goal: zero context loss between sessions.
+
+---
+
+## What is this
+
+{{ONE_LINE_DESCRIPTION}}
+
+**Domain:** {{DOMAIN}} | **Stack:** {{STACK}}
+
+---
+
+## Current state ({{DATE}})
+
+### {{PRODUCT_1}} ✅/🚧/❌
+- {{STATUS_1}}
+
+### {{PRODUCT_2}} ✅/🚧/❌
+- {{STATUS_2}}
+
+---
+
+## Architecture in one screen
+
+```
+{{FRONTEND}} (client)
+    │  Auth → session token
+    ▼
+{{BACKEND}} (main entry point)
+    ├── {{MODULE_1}}: {{path_1}}
+    ├── {{MODULE_2}}: {{path_2}}
+    └── {{MODULE_3}}: {{path_3}}
+    ▼
+{{DATABASE}} (prod) / local DB (dev)
+```
+
+---
+
+## Key modules — where is what
+
+| What I'm looking for | Where it is |
+|---|---|
+| {{FEATURE}} | `{{path}}` |
+| {{FEATURE}} | `{{path}}` |
+
+---
+
+## Quality rules — run before every commit
+
+```bash
+make quality
+```
+
+---
+
+## Key decisions — don't re-open these
+
+| Decision | Why |
+|---|---|
+| {{DECISION}} | {{REASON}} |
+
+---
+
+## What NOT to do
+
+- ❌ {{CONSTRAINT}}
+- ❌ {{CONSTRAINT}}
+
+---
+
+## Required environment variables
+
+See `.env.example` for the full list with descriptions.
+
+---
+
+## Recent Changes
+
+_Auto-updated by scripts/update_docs.py_

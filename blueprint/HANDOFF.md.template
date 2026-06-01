@@ -1,0 +1,93 @@
+# HANDOFF.md — {{PROJECT_NAME}}
+
+## Inicio de cada sesión
+
+1. Si existe `HANDOFF.md` → léelo primero (contexto de la sesión anterior)
+2. Lee `CONTEXT.md` → estado actual del proyecto
+
+Para guardar contexto al cerrar: `/handoff-save`
+Para cargar contexto al abrir: `/handoff-open`
+
+---
+
+## 🔴 Regla #1 — Spec antes de código. Siempre.
+
+**Antes de escribir cualquier código**, verifica que existe un spec en `docs/specs/`.
+Si no existe, escríbelo primero. Sin excepciones — incluso en sesiones largas.
+
+**Flujo:** analizar → proponer → esperar OK → escribir spec → recién ahí codear.
+
+Lee `WORKING-AGREEMENT.md` para el contrato completo. Lee `CONTEXT.md` para el estado actual.
+La sección **"Specs pendientes"** en CONTEXT.md lista cambios que aún necesitan spec — atiéndelos primero.
+
+## Project context
+
+{{DESCRIPTION}}
+
+## Mandatory rules before finishing any task
+
+1. **Run quality checks:**
+   ```bash
+   make quality
+   ```
+
+2. **If linting errors:** fix them before finishing.
+3. **If type errors:** fix them or document why with a suppression comment.
+4. **If tests fail:** fix code or test as appropriate.
+
+## Project structure
+
+```
+{{PROJECT_NAME}}/
+├── CLAUDE.md              # this file — rules for Claude Code
+├── CONTEXT.md             # living AI context (auto-updated)
+├── .blueprint             # blueprint config (LANG, version)
+├── .claude/
+│   └── settings.json      # hooks: Stop → update_docs.py
+├── docs/
+│   ├── constitution/      # immutable principles (+ auto Project Status)
+│   ├── clarify/           # assumptions + open questions (+ auto Last Review)
+│   ├── vision/            # product vision and market context
+│   ├── plan/              # technical plan + ADRs (+ auto Build Progress)
+│   ├── modular/           # module contracts
+│   ├── architecture/      # system design document (architecture, API contracts)
+│   └── specs/             # one spec per feature (with status markers)
+├── src/                   # source code
+├── tests/                 # test suite
+└── scripts/
+    ├── update_docs.py     # auto-updates all living docs
+    └── install_hooks.sh   # installs git hooks
+```
+
+## Code conventions
+
+- Follow the idioms of the project's primary language
+- Max line length: 100 characters
+- Annotate all public function parameters and return types
+- Docstrings only on non-trivial functions — explain *why*, not *what*
+- No obvious comments. Explain intent when it's not evident from the code
+
+## Document decisions
+
+When adding a new feature:
+1. If it changes architecture → add an ADR to `docs/plan/v1-mvp.md`
+2. If it's a new feature → write the spec in `docs/specs/<name>.md` **before** coding
+3. If it adds a slash command → create `.claude/commands/<name>.md`
+
+## Living docs (auto-updated after every commit and session)
+
+| Doc | Auto-updated section |
+|---|---|
+| `CONTEXT.md` | `## Recent Changes` |
+| `CONTEXT.md` | `## Specs Needed` ← check this every session |
+| `CONTEXT.md` | `## Working Agreement (active)` ← rule reminder |
+| `docs/constitution/constitution.md` | `## Project Status` |
+| `docs/clarify/assumptions.md` | `## Last Review` |
+| `docs/plan/v1-mvp.md` | `## Build Progress` |
+| `docs/specs/*.md` | `<!-- status: ... -->` marker |
+
+**Never manually edit these sections** — they will be overwritten on the next commit.
+
+## Required environment variables
+
+See `.env.example` for the full list with descriptions.
