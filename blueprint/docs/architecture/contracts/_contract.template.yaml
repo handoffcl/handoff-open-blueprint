@@ -1,0 +1,237 @@
+openapi: 3.1.0
+
+info:
+  title: "{{MODULE_NAME}} API"
+  version: "1.0.0"
+  description: "{{MODULE_DESCRIPTION}}"
+
+servers:
+  - url: "{{BASE_URL}}/api/v1"
+    description: "Production"
+  - url: "http://localhost:{{PORT}}/api/v1"
+    description: "Development"
+
+# ── Naming conventions ────────────────────────────────────────────────────────
+# Collections (plural):  GET /users        GET /orders
+# Singular resource:     GET /users/{userId}
+# Nested (max 2 levels): GET /users/{userId}/orders
+# Fields: camelCase — userId, createdAt, totalAmount
+# Dates: ISO 8601 — 2026-05-24T10:30:00Z
+# IDs: UUID v4, always string
+
+paths:
+  /{{resources}}:
+    get:
+      summary: "List {{resources}}"
+      operationId: "list{{Resources}}"
+      tags: ["{{Module}}"]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/{{Resource}}ListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      summary: "Create {{resource}}"
+      operationId: "create{{Resource}}"
+      tags: ["{{Module}}"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/{{Resource}}Create"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/{{Resource}}Response"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /{{resources}}/{{{resource}}Id}:
+    parameters:
+      - name: "{{resource}}Id"
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      summary: "Get {{resource}} by ID"
+      operationId: "get{{Resource}}ById"
+      tags: ["{{Module}}"]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/{{Resource}}Response"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      summary: "Update {{resource}}"
+      operationId: "update{{Resource}}"
+      tags: ["{{Module}}"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/{{Resource}}Update"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/{{Resource}}Response"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      summary: "Delete {{resource}}"
+      operationId: "delete{{Resource}}"
+      tags: ["{{Module}}"]
+      responses:
+        "204":
+          description: "No Content"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+# ── Components ────────────────────────────────────────────────────────────────
+components:
+  schemas:
+    # Base resource schema
+    {{Resource}}:
+      type: object
+      required: [id, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        # Add domain-specific fields here
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-05-24T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-05-24T10:30:00Z"
+
+    {{Resource}}Create:
+      type: object
+      required: []
+      properties: {}
+      # Add required fields for creation
+
+    {{Resource}}Update:
+      type: object
+      properties: {}
+      # All fields optional for partial update
+
+    # ── Response envelopes (never break this contract) ────────────────────────
+    {{Resource}}Response:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/{{Resource}}"
+
+    {{Resource}}ListResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/{{Resource}}"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+
+    PaginationMeta:
+      type: object
+      required: [total, page, pageSize]
+      properties:
+        total:
+          type: integer
+          example: 100
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 20
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: "RESOURCE_NOT_FOUND"
+            message:
+              type: string
+              example: "The requested resource was not found."
+
+  responses:
+    BadRequest:
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: "Unauthorized"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: session
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+security:
+  - sessionCookie: []

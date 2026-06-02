@@ -236,7 +236,8 @@ handoff-open-blueprint/
 │       ├── plan/             ← decisiones técnicas y ADRs
 │       ├── clarify/          ← supuestos documentados
 │       ├── modular/          ← contratos entre módulos
-│       └── architecture/     ← diseño del sistema
+│       └── architecture/
+│           └── contracts/    ← contratos OAS por módulo (generados en bootstrap)
 │
 └── scripts/
     ├── update_docs.py        ← harness: auto-actualiza docs después de cada commit
