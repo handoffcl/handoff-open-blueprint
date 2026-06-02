@@ -87,7 +87,10 @@ El archivo `roles/routing.md` explica cuándo activar cada rol según la complej
 | ≥ 128k tokens | ✅ Compatible |
 | ≥ 200k tokens | ✅ Ideal para proyectos con historial largo |
 
-**Modelos probados:** Claude 3.5+, GPT-4o, Gemini 1.5+, Llama 4, Mistral Large, Qwen 72B+, DeepSeek V3+
+> **Ojo:** algunos modelos anuncian 128k pero en la práctica degradan calidad o fallan antes de ese límite. Verifica el comportamiento real de tu modelo en contextos largos antes de usarlo en proyectos extensos.
+
+**Modelos probados por el equipo:** Claude 3.5+, GPT-4o, Gemini 1.5+, Llama 4 Scout, Mistral Large
+**Compatibles por diseño** (ventana ≥ 128k, no verificados): Qwen 72B+, DeepSeek V3+, y cualquier modelo que cumpla el mínimo — verifica la ventana de contexto de tu modelo antes de usarlo
 
 ---
 
