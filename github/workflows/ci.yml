@@ -1,0 +1,45 @@
+name: CI — Calidad de código
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    name: Ruff · Mypy · Pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Ruff check (linting)
+        run: ruff check src/ tests/ main.py
+
+      - name: Ruff format check
+        run: ruff format --check src/ tests/ main.py
+
+      - name: Mypy (type checking)
+        run: mypy src/
+
+      - name: Pytest (tests)
+        env:
+          ANTHROPIC_API_KEY: sk-ant-test-key
+          SECRET_KEY: test-secret-key-for-ci
+          DATABASE_URL: sqlite:///./test_ci.db
+          FIREBASE_API_KEY: test
+          FIREBASE_APP_ID: test
+          REVENIU_SECRET: test-secret-key
+        run: pytest tests/ -v --tb=short

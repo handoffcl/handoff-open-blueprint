@@ -211,37 +211,54 @@ Ver `roles/routing.md` para la guía completa.
 
 ```
 handoff-open-blueprint/
-├── BOOTSTRAP.md              ← punto de entrada — "ejecuta bootstrap"
-├── WORKING-AGREEMENT.md      ← reglas de trabajo con la IA
-├── LICENSE                   ← MIT
+├── BOOTSTRAP.md                  ← punto de entrada — "ejecuta bootstrap"
+├── PHILOSOPHY.md                 ← por qué existe este blueprint
+├── WORKING-AGREEMENT.md          ← reglas de trabajo con la IA
+├── CONTRIBUTING.md
+├── LICENSE                       ← MIT
 │
-├── commands/
-│   └── bootstrap.md          ← flujo completo de bootstrap (agnóstico)
+├── commands/                     ← comandos para tu agente IA
+│   ├── bootstrap.md              ← /bootstrap — arranca un proyecto nuevo
+│   ├── architecture-review.md    ← /architecture-review
+│   ├── code-quality.md           ← /code-quality
+│   └── security-review.md        ← /security-review
 │
-├── roles/
-│   ├── routing.md            ← cuándo usar cada rol según complejidad
+├── roles/                        ← roles del agente según área de trabajo
+│   ├── routing.md                ← cuándo usar cada rol según complejidad
 │   ├── senior-backend.md
 │   ├── senior-frontend.md
 │   ├── senior-design.md
 │   └── security-review.md
 │
-├── blueprint/                ← plantillas copiadas al proyecto en bootstrap
-│   ├── CONTEXT.md.template
-│   ├── HANDOFF.md.template
+├── blueprint/                    ← plantillas copiadas al proyecto en bootstrap
+│   ├── CONTEXT.md.template       ← contexto vivo (auto-actualizado cada sesión)
+│   ├── HANDOFF.md.template       ← reglas del proyecto para el agente IA
 │   ├── WORKING-AGREEMENT.md.template
+│   ├── Makefile.template
 │   └── docs/
-│       ├── specs/            ← un spec por feature, antes de codear
-│       ├── vision/           ← qué hace el producto y para quién
-│       ├── constitution/     ← principios del proyecto
-│       ├── plan/             ← decisiones técnicas y ADRs
-│       ├── clarify/          ← supuestos documentados
-│       ├── modular/          ← contratos entre módulos
+│       ├── vision/               ← visión del producto (qué, para quién, por qué)
+│       ├── constitution/         ← principios del proyecto (+ Project Status auto)
+│       ├── plan/                 ← decisiones técnicas + ADRs (+ Build Progress auto)
+│       ├── specs/                ← un spec por feature, antes de codear
+│       │   └── _spec.template.md
+│       ├── clarify/              ← supuestos documentados (+ Last Review auto)
+│       ├── modular/              ← mapa de módulos + contratos
+│       ├── sdd/                  ← documento de diseño del sistema
 │       └── architecture/
-│           └── contracts/    ← contratos OAS por módulo (generados en bootstrap)
+│           └── contracts/        ← contratos OAS — un YAML por módulo, generado en bootstrap
 │
-└── scripts/
-    ├── update_docs.py        ← harness: auto-actualiza docs después de cada commit
-    └── install_hooks.sh      ← instala los git hooks
+├── scripts/
+│   ├── update_docs.py            ← harness: auto-actualiza docs después de cada commit
+│   ├── update_context.py         ← actualiza CONTEXT.md con últimos cambios
+│   ├── context_usage.py          ← muestra uso de tokens de la sesión activa
+│   ├── watch.py                  ← modo watch: actualiza docs en tiempo real
+│   ├── install_hooks.sh          ← instala git hooks (pre-commit + post-commit)
+│   ├── install.sh                ← instala comandos globalmente
+│   └── setup.sh                  ← bootstrapper completo del proyecto
+│
+└── github/
+    ├── workflows/ci.yml          ← quality gate en cada push
+    └── PULL_REQUEST_TEMPLATE.md
 ```
 
 ---
