@@ -84,12 +84,13 @@ El archivo `roles/routing.md` explica cuándo activar cada rol según la complej
 | Contexto | Compatible | Modelos recomendados |
 |---|---|---|
 | < 128k tokens | ❌ No compatible | — |
-| ≥ 128k tokens | ✅ Compatible | Llama 4 Scout, Claude Haiku, Mistral Large, GPT-5 Codex |
+| ≥ 128k tokens | ✅ Compatible | Llama 4 Scout, Claude Haiku, Mistral Large, GPT-5 Codex, GPT-5.x+ |
 | ≥ 200k tokens | ✅ Ideal para proyectos con historial largo | GPT-5.x+, Claude Sonnet+, Qwen3-Coder 480B |
 
 > **Ojo:** algunos modelos anuncian 128k pero en la práctica degradan calidad antes de ese límite. Para proyectos con historial extenso, usa modelos con ventana real de 200k+.
 
 **Probados por el equipo:** Llama 4 Scout, Claude Haiku, GPT-5 Codex, GPT-5.x+, Qwen3-Coder 480B, Mistral Large
+**No recomendados:** Mistral Codestral (contexto insuficiente en práctica)
 **Compatibles por diseño** (ventana ≥ 128k, no verificados por el equipo): Gemini, DeepSeek, y cualquier modelo que soporte ≥ 128k en la práctica — verifica el comportamiento real de tu modelo antes de usarlo en proyectos extensos
 
 ---
