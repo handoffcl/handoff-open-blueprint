@@ -1,51 +1,76 @@
-# WORKING-AGREEMENT.md — How AI works in this project
+# Working Agreement
 
-## Core rule: spec before code
-
-Before touching a single line of code, the AI always:
-
-1. **Analyzes** — reads the relevant context (`CONTEXT.md`, affected module, contracts, current code)
-2. **Summarizes** — explains to the human what it understood about the current state and the request
-3. **Proposes** — describes the change it's going to make: affected files, decisions taken, identified risks, alternatives discarded
-4. **Waits for approval** — explicit, from the human, before modifying any file
-5. **Documents** — updates the spec for the module / feature BEFORE writing code
-6. **Implements** — only then writes code following the approved spec
-
-## Why
-
-- **Without prior spec:** AI improvises, mixes decisions, leaves invisible debt
-- **With prior spec:** human validates intent before burning tokens, leaves a record for future sessions, other agents can pick up the work
-
-This rule applies to EVERY change: bootstrap, new feature, bug fix, refactor, even things that look trivial. Always a spec first.
-
-## Exceptions
-
-Only two:
-- Questions that DO NOT modify code (answer, explain, summarize)
-- Cosmetic changes done in batch (rename variable, format) — agent groups them and explains before pushing
-
-## How it looks in practice
-
-**Bad (no agreement):**
-> User: "add Google sign-in"
-> AI: *creates files, writes code, commits*
-
-**Good (with agreement):**
-> User: "add Google sign-in"
-> AI: *reads `CONTEXT.md`, contracts of the `auth/` module*
-> AI: "I see the project uses Firebase for auth. I propose:
-> - Add `signInWithGoogle()` in `auth/firebase.ts`
-> - Button in `LoginModal.svelte` above email/password
-> - Spec at `modules/auth/specs/google-signin.md`
-> Risk: popup is blocked in VS Code webview (known issue).
-> Should I proceed like this or do you prefer a different flow?"
-> User: "yes, go ahead"
-> AI: *writes spec, waits for ok, writes code, commits*
+> **Reglas de trabajo con la IA en este proyecto.**
+> El agente debe leer este archivo antes de cualquier acción.
 
 ---
 
-## Why this matters in this blueprint
+## La regla fundamental
 
-This blueprint is DDD lite, SDD and modular architecture put into practice. The AI generates the methodology (specs, contracts, architecture) from your idea instead of you writing it by hand.
+**Analiza → Resume → Propone → Espera OK → Escribe spec → Solo entonces codea.**
 
-But that only works if the AI **never skips the spec step**. Without this rule, the blueprint becomes another vibe-coding tool with extra ceremony. With it, every change is grounded in a spec, every spec lives in the repo, and the project stays coherent across sessions and across agents.
+No escribas código sin que exista una spec en `docs/specs/`. Esta regla aplica incluso en sesiones largas o cuando parece obvio qué hacer.
+
+---
+
+## Antes de cualquier tarea
+
+1. Lee `CONTEXT.md` — tiene el estado actual, la arquitectura y los últimos cambios
+2. Identifica el tipo de tarea (tabla abajo) y activa el rol correspondiente
+3. Si falta contexto, pide el archivo antes de asumir
+
+---
+
+## Tipos de tarea y protocolo
+
+| Tipo | Ejemplos | Protocolo |
+|---|---|---|
+| **Pregunta / explicación** | "¿qué hace X?", "por qué está así" | Responde directo |
+| **Cambio pequeño** | typo, rename, 1-5 líneas | Propón en 1 línea → espera OK |
+| **Feature nueva** | endpoint, componente, servicio | Escribe spec → propón → espera OK → implementa |
+| **Decisión de arquitectura** | cambio de módulo, ADR | Analiza → escribe ADR → espera OK |
+| **Cualquier cambio de seguridad** | auth, permisos, keys | Activa `roles/security-review.md` siempre |
+
+---
+
+## Roles disponibles
+
+Antes de trabajar en cada área, di en el chat:
+`"Lee roles/[nombre].md y trabaja desde ese rol."`
+
+| Área | Archivo |
+|---|---|
+| APIs, base de datos, servicios | `roles/senior-backend.md` |
+| Componentes, UX, accesibilidad | `roles/senior-frontend.md` |
+| Diseño visual, flujos, conversión | `roles/senior-design.md` |
+| Seguridad, auth, datos sensibles | `roles/security-review.md` |
+
+Ver `roles/routing.md` para la guía completa de cuándo usar cada rol.
+
+---
+
+## Reglas de código
+
+- Sin TODOs sin resolver
+- Sin implementaciones a medias presentadas como completas
+- Tipado estricto según el lenguaje del proyecto
+- Edición quirúrgica — toca solo lo necesario
+- Sin duplicar lógica si ya existe abstracción clara
+
+---
+
+## Reglas de documentación
+
+- Cada feature nueva: spec en `docs/specs/<nombre>.md` **antes** de codear
+- Cada decisión arquitectural importante: ADR en `docs/plan/`
+- `CONTEXT.md` se actualiza automáticamente — no lo edites a mano
+
+---
+
+## Quality gate
+
+```bash
+make quality   # debe pasar en verde antes de cada commit
+```
+
+Sin quality gate verde, sin merge.

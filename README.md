@@ -1,136 +1,151 @@
 # Handoff Open Blueprint
 
-> **Estructura tu repo para que cualquier agente de IA arranque en 30 segundos — sin re-explicar nada.**
+> **Para que tu IA no empiece de cero en cada sesión.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
-## ¿Qué es?
+## El problema
 
-Un blueprint de desarrollo con IA que funciona con **cualquier modelo y cualquier editor**.
+Cada vez que abres una nueva sesión con tu agente de IA, re-explicas el proyecto desde cero. El agente no sabe qué decisiones se tomaron, qué está hecho, qué está pendiente, ni qué no se debe tocar. Cada sesión es una pizarra en blanco.
 
-No necesitas la extensión de Handoff. No necesitas un CLI. Solo necesitas un modelo con ventana de contexto suficiente y este repo clonado.
+## La solución
 
-**Requisito mínimo:** modelo con ≥ 128k tokens de contexto.  
-**Recomendado:** ≥ 200k para proyectos con historial largo.
+Un blueprint que hace tu repo **auto-documentado para la IA**. El agente lee los archivos al inicio de cada sesión y arranca en 30 segundos con el contexto completo del proyecto.
 
-Compatible con: Claude, GPT-4o, Gemini, Mistral Large, Llama 4, Qwen 72B+, DeepSeek V3+, Copilot, Cursor, y cualquier agente que pueda leer archivos.
+**Agnóstico al modelo.** Funciona con Claude, GPT, Gemini, Mistral, Copilot, Cursor, Llama, DeepSeek — cualquier agente con ≥ 128k tokens de contexto.
+
+**Sin lock-in.** Sin extensiones requeridas, sin CLIs, sin suscripciones. Solo archivos Markdown y un script Python.
 
 ---
 
-## Inicio en 30 segundos
+## Inicio rápido
 
 ```bash
 git clone https://github.com/handoffcl/handoff-open-blueprint
 cd handoff-open-blueprint
 ```
 
-Luego en cualquier chat con tu agente:
+Luego en cualquier chat con tu agente de IA:
 
 ```
 Lee BOOTSTRAP.md y ejecútalo.
 ```
 
-Eso es todo. El agente pregunta tu idea, genera toda la estructura, instala el harness y arranca.
+El agente te pregunta tu idea, genera toda la estructura del proyecto y arranca.
 
 ---
 
-## Qué incluye
+## ¿Qué hace exactamente?
+
+### 1. El bootstrap — una sola vez
+
+Cuando ejecutas el bootstrap, el agente:
+- Te hace **una sola pregunta**: ¿qué hace tu app y para quién?
+- Genera todos los documentos del proyecto desde esa respuesta
+- Instala git hooks que mantienen los docs actualizados automáticamente
+- Escribe los specs iniciales por feature (antes de codear)
+
+### 2. El harness — funciona solo después de cada commit
+
+`scripts/update_docs.py` corre automáticamente via git hook después de cada commit:
+
+```
+Tu commit
+  ↓
+update_docs.py actualiza:
+  CONTEXT.md      → últimos cambios, estado actual
+  constitution.md → fase del proyecto
+  assumptions.md  → alerta si lleva mucho sin revisar
+  plan/v1-mvp.md  → progreso de features
+  specs/*.md      → estado de cada spec
+```
+
+**Resultado:** la sesión 50 arranca con el historial completo de las sesiones 1-49. El agente no re-abre decisiones cerradas ni sugiere lo que ya descartaste.
+
+### 3. Los roles — quién hace qué
+
+Antes de trabajar en cada área, el agente activa el rol correspondiente:
+
+| Área | Rol |
+|---|---|
+| APIs, base de datos, servicios | `roles/senior-backend.md` |
+| Componentes, UX, accesibilidad | `roles/senior-frontend.md` |
+| Flujos de usuario, diseño visual | `roles/senior-design.md` |
+| Auth, permisos, datos sensibles | `roles/security-review.md` |
+
+El archivo `roles/routing.md` explica cuándo activar cada rol según la complejidad del task.
+
+---
+
+## Requisito mínimo
+
+| Contexto | Compatible |
+|---|---|
+| < 128k tokens | ❌ No recomendado |
+| ≥ 128k tokens | ✅ Compatible |
+| ≥ 200k tokens | ✅ Ideal para proyectos con historial largo |
+
+**Modelos probados:** Claude 3.5+, GPT-4o, Gemini 1.5+, Llama 4, Mistral Large, Qwen 72B+, DeepSeek V3+
+
+---
+
+## Estructura del repo
 
 ```
 handoff-open-blueprint/
 ├── BOOTSTRAP.md              ← punto de entrada — "ejecuta bootstrap"
-├── WORKING-AGREEMENT.md      ← cómo trabaja la IA en este proyecto
+├── WORKING-AGREEMENT.md      ← reglas de trabajo con la IA
+├── LICENSE                   ← MIT
 │
 ├── commands/
-│   └── bootstrap.md          ← flujo completo de bootstrap (agnóstico)
+│   └── bootstrap.md          ← flujo completo de bootstrap
 │
 ├── roles/
-│   ├── routing.md            ← cuándo usar cada rol según complejidad
+│   ├── routing.md            ← cuándo usar cada rol
 │   ├── senior-backend.md
 │   ├── senior-frontend.md
 │   ├── senior-design.md
 │   └── security-review.md
 │
-├── blueprint/                ← templates copiados al proyecto en bootstrap
+├── blueprint/                ← plantillas copiadas al proyecto en bootstrap
 │   ├── CONTEXT.md.template
 │   ├── HANDOFF.md.template
 │   ├── WORKING-AGREEMENT.md.template
-│   ├── Makefile.template
 │   └── docs/
-│       ├── vision/
-│       ├── constitution/
-│       ├── plan/
-│       ├── specs/
-│       ├── clarify/
-│       ├── modular/
-│       └── architecture/
+│       ├── specs/            ← un spec por feature, antes de codear
+│       ├── vision/           ← qué hace el producto y para quién
+│       ├── constitution/     ← principios del proyecto
+│       ├── plan/             ← decisiones técnicas y ADRs
+│       ├── clarify/          ← supuestos documentados
+│       ├── modular/          ← contratos entre módulos
+│       └── architecture/     ← diseño del sistema
 │
 └── scripts/
     ├── update_docs.py        ← harness: auto-actualiza docs después de cada commit
-    └── install_hooks.sh      ← instala git hooks
+    └── install_hooks.sh      ← instala los git hooks
 ```
 
 ---
 
-## El harness — qué hace por ti
+## ¿En qué se diferencia de handoff-blueprint?
 
-`scripts/update_docs.py` corre automáticamente después de cada commit (via git hook) y mantiene vivos:
+[handoff-blueprint](https://github.com/handoffcl/handoff-blueprint) está diseñado para usarse con la extensión VS Code de Handoff — tiene slash commands y aprovecha la integración con el editor.
 
-- `CONTEXT.md` → últimos cambios clasificados
-- `docs/constitution/constitution.md` → fase del proyecto
-- `docs/clarify/assumptions.md` → alerta si lleva mucho sin revisar
-- `docs/plan/v1-mvp.md` → progreso de features
-- `docs/specs/*.md` → estado de cada spec
-
-**Resultado:** la sesión 50 arranca con el historial completo de las sesiones 1-49. El agente no re-abre decisiones cerradas, no sugiere lo que ya descartaste, no rompe lo que se construyó con intención.
+**handoff-open-blueprint** es la versión completamente agnóstica: funciona con cualquier agente, en cualquier editor, sin instalar nada adicional. Si no usas la extensión de Handoff, este es el que necesitas.
 
 ---
 
-## Role routing por complejidad
+## Ecosistema Handoff
 
-Antes de trabajar, el agente consulta `roles/routing.md`:
-
-| Complejidad | Rol |
+| Producto | Descripción |
 |---|---|
-| Pregunta / cambio pequeño | Sin rol |
-| Feature backend | `senior-backend.md` |
-| Feature frontend | `senior-frontend.md` |
-| UI / flujos | `senior-design.md` |
-| Arquitectura | `senior-backend.md` + modelo ≥ 200k |
-| Seguridad | `security-review.md` (siempre obligatorio) |
-
----
-
-## Multi-LLM por diseño
-
-El blueprint no te amarra a un modelo ni a un proveedor.
-
-Puedes cambiar de Claude a Gemini a Mistral en la misma sesión — el contexto vive en los archivos, no en el chat. Cualquier agente que lea `HANDOFF.md` + `CONTEXT.md` + `WORKING-AGREEMENT.md` arranca con el estado completo del proyecto.
-
-Esto es lo que hace posible el trabajo distribuido: múltiples agentes, múltiples sesiones, mismo contexto.
-
----
-
-## Diferencia con handoff-blueprint
-
-| | handoff-blueprint | handoff-open-blueprint |
-|---|---|---|
-| Requiere extensión VS Code | Recomendado | No |
-| Slash commands | `/bootstrap-app` | `"ejecuta bootstrap"` |
-| Roles con routing por complejidad | No | ✅ |
-| Compatible con Copilot / Cursor / cualquier agente | Con fricción | ✅ nativo |
-| Mantenido por | [@handoffcl](https://github.com/handoffcl) | [@handoffcl](https://github.com/handoffcl) |
-
----
-
-## Filosofía
-
-> El mejor repo es el que se documenta solo.  
-> El mejor repo con IA es el que se documenta solo *para la IA*.
-
-→ [Lee la filosofía completa](PHILOSOPHY.md)
+| [Handoff](https://handoff.cl) | Chat multi-LLM con contexto compartido entre modelos |
+| [Handoff VS Code Extension](https://handoff.cl/vscode) | El chat dentro de tu editor con herramientas de filesystem |
+| [Handoff Blueprint](https://github.com/handoffcl/handoff-blueprint) | Blueprint para la extensión VS Code |
+| **Handoff Open Blueprint** | Este repo — blueprint agnóstico para cualquier agente |
+| [Handoff Coder](https://github.com/handoffcl/handoff-coder) | Modelfiles open source que convierten cualquier LLM en un ingeniero senior |
 
 ---
 
@@ -140,4 +155,4 @@ MIT — úsalo, forkéalo, mejóralo.
 
 ---
 
-Hecho con [Handoff](https://handoff.cl) · [@handoffcl](https://github.com/handoffcl)
+Hecho en Chile 🇨🇱 · [handoff.cl](https://handoff.cl) · [@handoffcl](https://github.com/handoffcl)
