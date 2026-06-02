@@ -285,7 +285,7 @@ def _build_working_agreement_reminder(L: dict[str, str]) -> str:
 
 
 def update_context(commits: list[dict[str, str]], L: dict[str, str]) -> bool:
-    """Update CONTEXT.md with recent changes, pending specs and WA reminder."""
+    """Update CONTEXT.md with recent changes, pending specs, WA reminder and context warning."""
     f = ROOT / "CONTEXT.md"
     if not f.exists():
         return False
@@ -295,9 +295,35 @@ def update_context(commits: list[dict[str, str]], L: dict[str, str]) -> bool:
     updated = _replace_section(
         updated, "working_agreement", _build_working_agreement_reminder(L), L
     )
+
+    # Inject context size warning at the top if threshold exceeded
+    warning = _context_total_warning()
+    warning_marker = "<!-- context-warning -->"
+    if warning:
+        warning_block = f"{warning_marker}\n> {warning}\n{warning_marker}"
+        if warning_marker not in updated:
+            updated = warning_block + "\n\n" + updated
+        else:
+            updated = re.sub(
+                rf"{re.escape(warning_marker)}.*?{re.escape(warning_marker)}",
+                warning_block,
+                updated,
+                flags=re.DOTALL,
+            )
+    else:
+        # Remove warning block if context is back within limits
+        updated = re.sub(
+            rf"{re.escape(warning_marker)}.*?{re.escape(warning_marker)}\n*",
+            "",
+            updated,
+            flags=re.DOTALL,
+        )
+
     if updated != content:
         f.write_text(updated, encoding="utf-8")
         print(f"  ✓ CONTEXT.md ({len(commits)} commits)")
+        if warning:
+            print(f"  ⚠️  Context warning: total CONTEXT*.md exceeded {CONTEXT_WARN_TOTAL_LINES} lines")
         return True
     return False
 
@@ -766,6 +792,43 @@ def update_specs(commits: list[dict[str, str]]) -> int:
     if count:
         print(f"  ✓ {count} spec(s) status updated")
     return count
+
+
+# ── Context total warning ─────────────────────────────────────────────────────
+
+CONTEXT_WARN_TOTAL_LINES = 600  # warn when all CONTEXT*.md combined exceed this
+
+
+def _context_total_warning() -> str | None:
+    """
+    Returns a warning string if all CONTEXT*.md files combined exceed the threshold.
+    The model would need to read all of them to have full project history.
+    Returns None if within safe range.
+    """
+    import glob as _glob
+
+    all_context = sorted(_glob.glob(str(ROOT / "CONTEXT*.md")))
+    if not all_context:
+        return None
+
+    total_lines = sum(
+        len(Path(f).read_text(encoding="utf-8").splitlines())
+        for f in all_context
+        if Path(f).exists()
+    )
+    file_count = len(all_context)
+
+    if total_lines <= CONTEXT_WARN_TOTAL_LINES:
+        return None
+
+    approx_tokens = total_lines * 12  # ~12 tokens per line average
+    return (
+        f"⚠️ **Contexto acumulado: {total_lines} líneas en {file_count} archivo(s) "
+        f"(~{approx_tokens:,} tokens estimados).** "
+        f"El modelo necesita leer todos los CONTEXT*.md para tener historial completo. "
+        f"Considera hacer una sesión de consolidación: resume los archivos más viejos "
+        f"en una sola entrada en CONTEXT.md y archiva el resto."
+    )
 
 
 # ── Context rotation ──────────────────────────────────────────────────────────

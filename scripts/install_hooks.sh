@@ -44,12 +44,15 @@ done
 
 if [ -n "$UNMATCHED" ]; then
   echo ""
-  echo "⚠️  WORKING AGREEMENT — spec missing for:"
+  echo "🚫 WORKING AGREEMENT VIOLATION — commit blocked."
+  echo ""
+  echo "  src/ changed without a spec in docs/specs/ for:"
   echo -e "$UNMATCHED"
   echo ""
-  echo "  Write a spec in docs/specs/ before committing code."
-  echo "  To skip this check (cosmetic changes only): git commit --no-verify"
+  echo "  Fix: write a spec in docs/specs/<name>.md first, then commit."
+  echo "  Cosmetic change? Use: git commit --no-verify"
   echo ""
+  exit 1
 fi
 
 exit 0
