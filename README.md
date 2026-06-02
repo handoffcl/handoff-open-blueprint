@@ -49,7 +49,7 @@ Un harness envuelve las sesiones del agente con infraestructura que se activa au
 flowchart TD
     A[git commit] --> B[pre-commit hook]
     A --> C[post-commit hook]
-    B --> B1["⚠️ avisa: src/ cambió sin spec"]
+    B --> B1["🚫 BLOQUEA commit: src/ cambió sin spec"]
     C --> D[update_docs.py]
     E[Sesión del agente termina] --> F{hook disponible?}
     F -->|onSessionEnd| D
@@ -64,6 +64,19 @@ Tres cosas se actualizan automáticamente en `CONTEXT.md` después de cada commi
 - **Últimos cambios** — commits clasificados (feat / fix / infra)
 - **Specs pendientes** — archivos en `src/` modificados sin spec correspondiente
 - **Working Agreement** — recordatorio de la regla para que el agente no olvide en sesiones largas
+
+**El pre-commit es un bloqueo real** — si `src/` cambia sin spec en `docs/specs/`, el commit falla con `exit 1`. El agente físicamente no puede commitear código sin spec. Cambios cosméticos pueden pasar con `--no-verify`.
+
+**Warning de contexto total** — cuando todos los `CONTEXT*.md` combinados superan 600 líneas (~7k tokens), el harness inyecta un aviso al tope de `CONTEXT.md` automáticamente. Significa: el agente necesitaría leer demasiado historial — consolida antes de la próxima sesión larga.
+
+**WORKING-AGREEMENT define qué puede tocar el agente:**
+
+| ✅ Puede actualizar (con aprobación) | 🚫 Nunca toca directamente |
+|---|---|
+| `docs/specs/`, `docs/plan/`, `docs/constitution/` | `CONTEXT.md` — solo el harness |
+| `docs/clarify/`, `docs/vision/`, `docs/modular/` | `WORKING-AGREEMENT.md` — inmutable |
+| `docs/sdd/`, `docs/architecture/contracts/` | `HANDOFF.md` — decisión humana |
+| `src/` — solo con spec aprobada | |
 
 ### Ingeniería de contexto — rotación progresiva
 
