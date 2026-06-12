@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# module.yaml — Machine-readable manifest for ONE module.
+#
+# This is the source of truth the semantic validator reads. Prose (modules.md)
+# is for humans; this file is for the machine. One module.yaml per module, at
+# docs/modular/<module>/module.yaml.
+#
+# The validator builds a graph from every module.yaml in the repo and answers:
+#   - Does anything this module CONSUMES still exist in the provider's PROVIDES?
+#   - Do two modules claim OWNership of the same files?
+#   - Do the invariants referenced here resolve to the constitution?
+#   - Does the declared PROVIDES surface still exist in the owned code? (drift)
+#
+# Keep it in sync with reality. When you change a module's public surface,
+# update `provides` here in the SAME commit. That discipline is what lets the
+# validator catch cross-module breakage that tests and linters never see.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Unique module name. Matches the directory name under src/.../modules/<name>.
+module: "{{MODULE_NAME}}"
+
+# Team or person accountable for this module. Used by the coordination layer
+# (locks/registry) to know who to ask before touching a foreign module.
+owner: "{{TEAM_OR_PERSON}}"
+
+# One-line description of the module's single responsibility.
+description: "{{ONE_LINE_RESPONSIBILITY}}"
+
+# ── owns ──────────────────────────────────────────────────────────────────────
+# Glob patterns for the files this module owns. Two modules owning the same
+# path is a hard error (ownership conflict). Determines which module a changed
+# file belongs to in local validation mode.
+owns:
+  - "src/**/modules/{{MODULE_NAME}}/**"
+
+# ── provides ──────────────────────────────────────────────────────────────────
+# The PUBLIC surface other modules are allowed to consume. Only what is exported
+# from index.ts / the module's public boundary. If a symbol is not listed here,
+# no other module may depend on it.
+#
+# Each entry: a name, and optionally the OAS contract path that specifies it.
+# Removing or renaming an entry here will FAIL validation if any module still
+# lists it under `consumes` — that is the core breakage check.
+provides:
+  - name: "{{exportedSymbol}}"
+    # Optional: link to the OAS operation/schema that formalizes this surface.
+    contract: "docs/architecture/contracts/{{MODULE_NAME}}.yaml#/paths/~1{{resources}}/get"
+  - name: "{{anotherExportedSymbol}}"
+
+# ── consumes ──────────────────────────────────────────────────────────────────
+# What this module depends on FROM OTHER modules. Each block names the provider
+# module and the exact symbols used. The validator checks every symbol here
+# exists in the provider's `provides`. This is how turismo removing
+# getCafeProfile gets caught when core still consumes it.
+#
+# Leave empty ([]) for a leaf module that depends on nothing.
+consumes:
+  - module: "{{otherModule}}"
+    symbols:
+      - "{{symbolUsed}}"
+      - "{{anotherSymbolUsed}}"
+
+# ── invariants ────────────────────────────────────────────────────────────────
+# IDs of constitution invariants this module must uphold, plus any
+# module-specific ones. Each ID must resolve to an entry in
+# docs/constitution/constitution.md (matched by its `id:` / heading anchor).
+# An unresolved invariant ID is a validation error.
+invariants:
+  - "{{invariant-id-from-constitution}}"
+
+# ── contracts ─────────────────────────────────────────────────────────────────
+# OAS files that formalize this module's HTTP surface. The validator can verify
+# that `provides[].contract` references point into one of these files.
+contracts:
+  - "docs/architecture/contracts/{{MODULE_NAME}}.yaml"

@@ -22,6 +22,8 @@ Un blueprint que hace tu repo **auto-documentado para la IA**. El agente lee los
 
 ## Inicio rápido
 
+### Proyecto nuevo
+
 ```bash
 git clone https://github.com/handoffcl/handoff-open-blueprint
 cd handoff-open-blueprint
@@ -34,6 +36,24 @@ Lee BOOTSTRAP.md y ejecútalo.
 ```
 
 El agente te pregunta tu idea, genera toda la estructura del proyecto y arranca.
+
+---
+
+### Proyecto existente — homologar
+
+Si ya tienes un proyecto y quieres que el harness funcione en él:
+
+```bash
+git clone https://github.com/handoffcl/handoff-open-blueprint /tmp/handoff-open-blueprint
+```
+
+Luego, en un chat con tu agente de IA **abierto en la carpeta de tu proyecto**:
+
+```
+Lee /tmp/handoff-open-blueprint/commands/homologate.md y ejecútalo en este proyecto.
+```
+
+El agente audita qué existe, qué falta, y te propone los cambios antes de tocar nada. Al terminar tu proyecto tendrá `WORKING-AGREEMENT.md`, `HANDOFF.md`, `roles/`, contratos OAS por módulo, y los git hooks activos — sin perder nada de lo que ya tenías.
 
 ---
 
@@ -204,6 +224,81 @@ Ver `roles/routing.md` para la guía completa.
 
 ---
 
+## DCDD — multi-agente y multi-equipo
+
+El harness de arriba evita que un agente empiece de cero. **DCDD** (Desarrollo guiado con Contexto Distribuido y Modular) resuelve el problema siguiente: que **varios** agentes —distintas sesiones, distintos modelos, distintos devs en distintos lugares— trabajen sobre el mismo repo **sin pisarse y sin contradecirse**.
+
+Dos clases de choque, dos capas distintas:
+
+### Capa de coordinación — que no se pisen *físicamente*
+
+El choque clásico: dos agentes en la misma rama, uno pierde su lugar mientras el otro avanza.
+
+| Artefacto | Qué hace |
+|---|---|
+| `scripts/worktree.sh` | cada agente trabaja en su propio worktree + rama. Aislamiento físico real. |
+| `.context/locks.json` | tabla de locks **compartida vía git**: "estoy en este módulo, no lo toques". |
+| `.context/agents/registry.local.yaml` | vista **local** (gitignored): qué agentes corren en tu máquina ahora. |
+| `.context/tasks/<id>.yaml` | el **scope** de una tarea: archivos `allowed`, archivos `forbidden`, intención. La correa del agente. |
+| `scripts/scope_guard.py` | bloquea en `pre-push` cualquier cambio fuera de `allowed` o dentro de `forbidden`, y cualquier edición a un módulo lockeado por otro. |
+
+> El `forbidden` de cada `task.yaml` es donde listas la infraestructura que **nunca** debe cambiar como efecto secundario (`svelte.config.js`, `package.json`, `hooks.server.*`). Es exactamente lo que detiene a un agente que "arregla" cosas que nadie le pidió.
+
+```bash
+bash scripts/worktree.sh start turismo feature/turismo chris-opus
+#  → crea .worktrees/turismo, rama feature/turismo, lock para chris-opus
+cd .worktrees/turismo && export DCDD_AGENT=chris-opus
+# ...trabaja aislado...
+bash scripts/worktree.sh end turismo   # libera lock + limpia worktree
+```
+
+### Capa semántica — que no se contradigan *en significado*
+
+El choque invisible: el código está limpio, los tests pasan, pero turismo cambió `getCafeProfile` y core lo consume. Ni git, ni el linter, ni los tests lo ven.
+
+El **validador semántico** sí. Lee cada `docs/modular/<módulo>/module.yaml` (manifiesto machine-readable: `owns` / `provides` / `consumes` / `invariants`) y construye el grafo de dependencias entre módulos.
+
+**Un solo motor, dos contextos de ejecución:**
+
+```
+scripts/semantic_validator.py
+  ├─ modo local   → pre-push: valida módulos tocados + sus consumidores
+  └─ modo central → CI antes de merge a main: valida el grafo completo
+```
+
+Mismo código en ambos lados. Lo único que cambia es el *scope* — así el feedback local predice exactamente lo que dirá el gate central. Detecta:
+
+- **contrato roto** — consumes un símbolo que el proveedor ya no provee
+- **conflicto de ownership** — dos módulos reclaman el mismo archivo
+- **invariante colgado** — referencias un invariante que no existe en la constitution
+- **drift** (warning) — declaras `provides` que no aparece en tu código
+
+```bash
+python3 scripts/semantic_validator.py --mode central   # el gate completo, a mano
+```
+
+### El flujo completo
+
+```
+worktree start  →  lock + aislamiento físico
+   ↓
+código  →  commit (post-commit actualiza living docs)
+   ↓
+git push  →  pre-push:  scope_guard (¿dentro de mi tarea? ¿módulo libre?)
+                        semantic_validator --mode local (¿rompí un contrato?)
+   ↓
+Pull Request  →  CI:  semantic_validator --mode central (grafo completo)
+                      → contradicción semántica → bloquea el merge a main
+   ↓
+merge a main  →  deploy
+```
+
+El `pre-push` es el espejo local del gate central: lo que pasa local, pasa en CI.
+
+Ver [`docs/DCDD.md`](docs/DCDD.md) para la arquitectura completa y el esquema de `module.yaml`.
+
+---
+
 ## Modelos compatibles
 
 | Contexto | Compatible | Modelos recomendados |
@@ -231,7 +326,8 @@ handoff-open-blueprint/
 ├── LICENSE                       ← MIT
 │
 ├── commands/                     ← comandos para tu agente IA
-│   ├── bootstrap.md              ← /bootstrap — arranca un proyecto nuevo
+│   ├── bootstrap.md              ← proyecto nuevo desde cero
+│   ├── homologate.md             ← proyecto existente → estructura del blueprint
 │   ├── architecture-review.md    ← /architecture-review
 │   ├── code-quality.md           ← /code-quality
 │   └── security-review.md        ← /security-review

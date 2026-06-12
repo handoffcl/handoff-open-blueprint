@@ -1,0 +1,13 @@
+{
+  "_comment": "Shared module locks across the team. COMMITTED to git — this is the coordination substrate. A lock declares 'I am working on this module, don't touch it'. Acquire/release via scripts/worktree.sh. Stale locks past ttl_minutes are ignored by scope_guard. A push that adds a lock for an already-locked module produces a git conflict — that conflict IS the collision signal, caught before any code clashes.",
+  "locks": [
+    {
+      "module": "{{MODULE_NAME}}",
+      "holder": "{{AGENT_OR_DEV_ID}}",
+      "branch": "{{BRANCH_NAME}}",
+      "worktree": ".worktrees/{{MODULE_NAME}}",
+      "acquired_at": "{{ISO_8601_TIMESTAMP}}",
+      "ttl_minutes": 240
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# registry.local.yaml — Who is working on this machine, right now.
+#
+# GITIGNORED. Never committed. This is the LOCAL view: the agents/sessions
+# running on your machine, possibly different models in parallel. The shared,
+# cross-team view lives in .context/locks.json (committed).
+#
+# worktree.sh writes here when you start/end work. You can also edit by hand.
+# scope_guard reads it to resolve "who am I" (falls back to the DCDD_AGENT env
+# var) so it can tell your own locks apart from a teammate's.
+# ─────────────────────────────────────────────────────────────────────────────
+
+agents:
+  - id: "{{AGENT_OR_DEV_ID}}"        # e.g. "chris-opus", "session-2", "ci-bot"
+    model: "{{MODEL}}"               # e.g. "claude-opus-4-8", "gpt-5", "human"
+    module: "{{MODULE_NAME}}"        # module this agent is allowed to touch
+    worktree: ".worktrees/{{MODULE_NAME}}"
+    task: ".context/tasks/{{TASK_ID}}.yaml"
+    started_at: "{{ISO_8601_TIMESTAMP}}"

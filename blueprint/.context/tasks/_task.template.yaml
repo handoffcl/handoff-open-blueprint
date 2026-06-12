@@ -1,0 +1,46 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# task.yaml — The scope of ONE task. The agent's leash.
+#
+# This is the artifact that stops an agent from "fixing" things nobody asked it
+# to fix. Before work starts, the task declares exactly which files are in scope,
+# which are off-limits, and what done looks like. scope_guard (pre-push) blocks
+# any change that touches a file outside `allowed` or inside `forbidden`.
+#
+# Lives in .context/tasks/<id>.yaml. Gitignored by default (it's about the
+# current session); commit it if your team wants task scopes reviewed.
+#
+# Real lesson encoded here: a production outage came from an agent adding
+# Cache-Control and build scripts to infra files nobody asked it to touch.
+# `forbidden` is where you list the infra that must never change as a side effect.
+# ─────────────────────────────────────────────────────────────────────────────
+
+id: "{{TASK_ID}}"
+
+# One line: what this task does and why. If a change doesn't serve this, it's
+# out of scope — full stop.
+intent: "{{WHAT_AND_WHY_IN_ONE_LINE}}"
+
+# The module this task belongs to. Must match a docs/modular/<module>/module.yaml.
+module: "{{MODULE_NAME}}"
+
+# Files this task is ALLOWED to change (globs). A changed file must match at
+# least one of these or the push is blocked.
+allowed:
+  - "src/**/modules/{{MODULE_NAME}}/**"
+  - "docs/modular/{{MODULE_NAME}}/**"
+  - "docs/specs/{{TASK_ID}}*.md"
+
+# Files this task must NEVER change as a side effect (globs). Takes precedence
+# over `allowed`. Put shared infra here — touching it needs its own task.
+forbidden:
+  - "svelte.config.js"
+  - "vite.config.*"
+  - "package.json"
+  - "src/hooks.server.*"
+  - ".github/**"
+
+# What "done" looks like. Plain checklist; the validator doesn't enforce these,
+# they're for the agent and the reviewer.
+acceptance:
+  - "{{OBSERVABLE_OUTCOME_1}}"
+  - "{{OBSERVABLE_OUTCOME_2}}"

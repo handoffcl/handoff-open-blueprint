@@ -63,6 +63,28 @@ Only two:
 
 ---
 
+## Multi-agent — DCDD rules
+
+When more than one agent/session/dev works this repo at once (see `docs/DCDD.md`):
+
+1. **One module at a time, locked.** Before touching a module, acquire it:
+   `bash scripts/worktree.sh start <module> <branch> <holder>`. Work in the
+   worktree it creates. Release with `... end <module>` when done.
+2. **Stay inside your task scope.** Each task declares `.context/tasks/<id>.yaml`
+   with `allowed` and `forbidden` globs. Never touch a file outside `allowed`,
+   never touch one in `forbidden`. If a fix needs an out-of-scope file, that's a
+   new task — surface it, don't sneak it in. This is what prevents an agent from
+   "fixing" infra nobody asked it to touch.
+3. **Update `module.yaml` in the same commit** as any change to a module's public
+   surface (`provides`). The semantic validator depends on it being truthful.
+4. **The gates are not optional.** `pre-push` runs `scope_guard` + the semantic
+   validator locally; CI runs the validator centrally before merge to main. Don't
+   `--no-verify` past a real semantic failure — fix the contract.
+5. **`DCDD_AGENT`** identifies you to the lock system. Export it in each session:
+   `export DCDD_AGENT=<your-id>`.
+
+---
+
 ## How it looks in practice
 
 **Without agreement:**

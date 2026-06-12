@@ -1,0 +1,30 @@
+name: DCDD — Validación semántica (gate central)
+
+# The authoritative gate. The pre-push hook runs the same engine locally on a
+# small scope; this runs it in central mode over the WHOLE module graph, with
+# the complete merged picture no single contributor's local run could see.
+# Code can be clean and tests green while turismo quietly broke a contract core
+# consumes — this is where that gets caught, before it reaches main.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  semantic:
+    name: Module graph · contracts · invariants
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Semantic validation (central, full graph)
+        run: python3 scripts/semantic_validator.py --mode central --root .

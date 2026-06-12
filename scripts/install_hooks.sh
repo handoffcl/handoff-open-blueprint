@@ -71,10 +71,37 @@ EOF
 chmod +x "$HOOKS_DIR/post-commit"
 echo "  ✓ post-commit installed (living docs)"
 
+# ── pre-push: DCDD semantic + scope gate (local mirror of the central CI) ─────
+cat > "$HOOKS_DIR/pre-push" << EOF
+#!/bin/bash
+# Local mirror of the central gate. Same engine, smaller scope. What passes here
+# passes in CI. Bypass a false positive with: git push --no-verify
+ROOT="\$(git rev-parse --show-toplevel)"
+BASE="\${DCDD_BASE:-origin/main}"
+FAIL=0
+
+if [ -f "\$ROOT/scripts/scope_guard.py" ]; then
+  echo "▸ DCDD scope guard..."
+  python3 "\$ROOT/scripts/scope_guard.py" --root "\$ROOT" --base "\$BASE" || FAIL=1
+fi
+
+if [ -f "\$ROOT/scripts/semantic_validator.py" ]; then
+  echo "▸ DCDD semantic validator (local)..."
+  python3 "\$ROOT/scripts/semantic_validator.py" --mode local --root "\$ROOT" --base "\$BASE" || FAIL=1
+fi
+
+exit \$FAIL
+EOF
+
+chmod +x "$HOOKS_DIR/pre-push"
+echo "  ✓ pre-push installed (semantic + scope gate)"
+
 echo ""
 echo "Done. Hooks active:"
 echo "  pre-commit  → warns when src/ changes have no spec"
 echo "  post-commit → auto-updates all living docs"
+echo "  pre-push    → DCDD semantic validator + scope guard (local gate)"
 echo ""
-echo "To update docs manually: python3 scripts/update_docs.py"
+echo "To update docs manually:    python3 scripts/update_docs.py"
+echo "To validate semantics:      python3 scripts/semantic_validator.py --mode central"
 echo "Hook log: .blueprint-log"

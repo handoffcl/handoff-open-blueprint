@@ -46,13 +46,27 @@ cp -r "$BLUEPRINT_DIR/blueprint/." .
 mkdir -p scripts
 cp "$BLUEPRINT_DIR/scripts/update_docs.py" scripts/
 cp "$BLUEPRINT_DIR/scripts/install_hooks.sh" scripts/
+# DCDD v2 — semantic layer + coordination
+cp "$BLUEPRINT_DIR/scripts/semantic_validator.py" scripts/
+cp "$BLUEPRINT_DIR/scripts/scope_guard.py" scripts/
+cp "$BLUEPRINT_DIR/scripts/worktree.sh" scripts/
 mkdir -p .github/workflows
 cp "$BLUEPRINT_DIR/github/workflows/ci.yml" .github/workflows/
+cp "$BLUEPRINT_DIR/github/workflows/semantic-validation.yml" .github/workflows/
 cp "$BLUEPRINT_DIR/github/PULL_REQUEST_TEMPLATE.md" .github/
 
+# DCDD v2 — coordination scaffolding (.context/)
+mkdir -p .context/agents .context/tasks
+cp "$BLUEPRINT_DIR/blueprint/.context/locks.json.template" .context/locks.json.template
+cp "$BLUEPRINT_DIR/blueprint/.context/agents/registry.local.yaml.template" .context/agents/
+cp "$BLUEPRINT_DIR/blueprint/.context/tasks/_task.template.yaml" .context/tasks/
+cp "$BLUEPRINT_DIR/blueprint/docs/modular/_module.template.yaml" docs/modular/ 2>/dev/null || true
+# locks.json starts empty (committed); registry/tasks are created per-session
+echo '{"locks": []}' > .context/locks.json
+
 # ── Rename templates ───────────────────────────────────────────────────────────
-mv CONTEXT.md.template CONTEXT.md
-mv CLAUDE.md.template CLAUDE.md
+mv CONTEXT.md.template CONTEXT.md 2>/dev/null || true
+mv CLAUDE.md.template CLAUDE.md 2>/dev/null || true
 mv WORKING-AGREEMENT.md.template WORKING-AGREEMENT.md 2>/dev/null || true
 mv .env.example.template .env.example 2>/dev/null || true
 mv Makefile.template Makefile 2>/dev/null || true
@@ -101,6 +115,12 @@ build/
 # Database
 *.db
 *.sqlite
+
+# DCDD v2 — local-only coordination state (never commit)
+.worktrees/
+.context/agents/registry.local.yaml
+.context/tasks/*.yaml
+!.context/tasks/_task.template.yaml
 
 # OS
 .DS_Store
